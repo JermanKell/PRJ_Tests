@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.TreeMap;
 
+import Model.Course;
+
 public class TCPServer implements Runnable{
 	/**
 	*  Sets the socket's server
@@ -18,6 +20,11 @@ public class TCPServer implements Runnable{
 	*  Active socket of the server
 	*/
 	private Socket socket = null;
+	
+	/**
+	 * Number of data to receive from the client
+	 */
+	private int Size = 0;
 	
 	private HashMap<String, TreeMap<Float, ArrayList<Course>>> hMap = null;
 	
@@ -47,6 +54,7 @@ public class TCPServer implements Runnable{
 			try {
 				System.out.println("Awaiting for a connection attempt");
 				socket = socketserver.accept();
+				getDataSize();
 				getData();
 				socket.close();
 			} catch (IOException e) {
@@ -58,6 +66,28 @@ public class TCPServer implements Runnable{
 		
 	}
 	
+	/**
+	 * Gets how much data will be received by the server for the next receive stage
+	 * @author Xavier Bouchenard
+	 */
+	private void getDataSize() {
+		ObjectInputStream in = null;
+		
+		try {
+			in = new ObjectInputStream(socket.getInputStream());
+			Size = in.readInt();
+			in.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
+		System.out.println("i will receive " + Size + " thing(s)");
+	}
+	
+	/**
+	 * Gets the information of the department name first and the list of course next
+	 * @author Xavier Bouchenard
+	 */
 	@SuppressWarnings({ "unchecked", "unused" })
 	private void getData() {
 		ObjectInputStream in = null;
@@ -66,11 +96,14 @@ public class TCPServer implements Runnable{
 		boolean var = true;
 		String dptName = null;
 		TreeMap<Float, ArrayList<Course>> map = null;
+		int i = 0;
 		
-		
-		while (var) {
+		// loops until i reaches the Size value
+		while (i < Size) {
 			try {
-				in = new ObjectInputStream(socket.getInputStream());
+				// accepts all connection attempt
+				socket = socketserver.accept();
+				in = new ObjectInputStream(socket.getInputStream());			
 				obj = in.readObject();
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
@@ -79,32 +112,49 @@ public class TCPServer implements Runnable{
 			} 
 			
 			dptName = (String)obj;
-			if (dptName.length() != 0) {
-				System.out.println("Le string reçu du client: " + dptName);
-				try {
-					inList = new ObjectInputStream(socket.getInputStream());
-					obj = inList.readObject();
-					inList.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				} catch (ClassNotFoundException e) {
-					e.printStackTrace();
-				}
+			
+			try {
+				obj = in.readObject();
+				// closes the input stream
+				in.close();
 				map = (TreeMap<Float, ArrayList<Course>>) obj;
-				hMap.put(dptName, map);
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
 			}
-			else var = false;
-		}    	
+			
+			if (hMap.containsKey(dptName))	hMap.replace(dptName, map);
+			else hMap.put(dptName, map);
+			// counter of receiving "thing(s)"
+			i++;
+			try {
+				// closes the socket connection
+				socket.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 	
+	/**
+	 * Displays the keys of the HashMap
+	 * @author Xavier Bouchenard
+	 */
 	private void displayContent() {
 		if (hMap.size() != 0) {
 			Set<String> str = hMap.keySet();
-			System.out.println("Voici les départements présents:");
+			System.out.println("These are the departments with a stored list of courses:");
 			for (String string : str) {
-				System.out.println(string);
+				System.out.println("\t- " + string);
+			}
+			for (String string : str) {
+				if (hMap.get(string) != null) {
+					System.out.println("The key value " + string + " is correct because it is existent");
+				}
 			}
 		}
-		else System.out.println("Y a rien a afficher");
+		else System.out.println("Nothing to display");
 	}
 }

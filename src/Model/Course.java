@@ -1,4 +1,4 @@
-package TCP_Server;
+package Model;
 
 import java.io.Serializable;
 
