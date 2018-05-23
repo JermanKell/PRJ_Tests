@@ -26,7 +26,12 @@ public class TCPServer implements Runnable{
 	 */
 	private int Size = 0;
 	
+	/**
+	 * Contains the lists of all courses generated
+	 */
 	private HashMap<String, TreeMap<Float, ArrayList<Course>>> hMap = null;
+	
+	private boolean flag = true;
 	
 	/**
 	 * Constructor of the class
@@ -50,7 +55,7 @@ public class TCPServer implements Runnable{
 	@Override
 	public void run() {
 		System.out.println("Server is starting");
-		while (true) {
+		while (flag) {
 			try {
 				System.out.println("Awaiting for a connection attempt");
 				socket = socketserver.accept();
@@ -81,7 +86,7 @@ public class TCPServer implements Runnable{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}		
-		System.out.println("i will receive " + Size + " thing(s)");
+		System.out.println("I will receive " + Size + " thing(s)");
 	}
 	
 	/**

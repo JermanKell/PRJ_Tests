@@ -20,9 +20,10 @@ public class Course implements Serializable{
 	private String ClassroomName;
 	
 	/**
-	 * Name of the professor for the course read in the ADE file
+	 * List of professor for the course read in the ADE file
+	 * 		in the case of an exam
 	 */
-	private String ProfessorName;
+	private String[] ProfessorName;
 	
 	/**
 	 * Start time of the course read in the ADE file
@@ -44,6 +45,21 @@ public class Course implements Serializable{
 	 */
 	public Course(String classname, String PName, float timeArray, float timeArray2) {
 		ClassroomName = classname;
+		ProfessorName[0] = PName;
+		StartTimeC = timeArray;
+		EndTimeC = timeArray2;
+	}
+	
+	/**
+	 * Constructor of the Course class
+	 * @author Xavier Bouchenard
+	 * @param classname		Name of the classroom written in the file
+	 * @param PName			List of professors names assigned for this course
+	 * @param timeArray		Start time of the course
+	 * @param timeArray2	End time of the course
+	 */
+	public Course(String classname, String[] PName, float timeArray, float timeArray2) {
+		ClassroomName = classname;
 		ProfessorName = PName;
 		StartTimeC = timeArray;
 		EndTimeC = timeArray2;
@@ -61,9 +77,9 @@ public class Course implements Serializable{
 	/**
 	 * Returns the name of the professor for this course
 	 * @author Xavier Bouchenard
-	 * @return	Name of the professor
+	 * @return	List of professor names
 	 */
-	public String getProfName() {
+	public String[] getProfName() {
 		return ProfessorName;
 	}
 	
